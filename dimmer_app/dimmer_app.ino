@@ -1,31 +1,18 @@
-#include <WiFi.h>
-
+#include <Arduino.h>
+#include "WifiModule.h"
 #include "config.h"
 
-void setup()
-{
-    Serial.begin(115200);
-    delay(10);
+WifiModule wifiModule;
 
-    // We start by connecting to a WiFi network
+void setup() {
+    wifiModule.init();
+}
 
-    Serial.println();
-    Serial.println();
-    Serial.print("Connecting to ");
-    Serial.println(ssid);
-
-    WiFi.begin(ssid, password);
-
-    while (WiFi.status() != WL_CONNECTED) {
-        delay(500);
-        Serial.print(".");
+void loop() {
+    // Your main application code here
+    if (wifiModule.isConnected()) {
+        // WiFi is connected, do something
+    } else {
+        // WiFi is not connected, handle accordingly
     }
-
-    Serial.println("");
-    Serial.println("WiFi connected");
-    Serial.println("IP address: ");
-    Serial.println(WiFi.localIP());
-}  
-void loop()
-{
-  }
+}
