@@ -3,8 +3,8 @@
 
 class WifiModule {
 public:
-    void init();
-    bool isConnected();
+  void init();
+  bool isConnected();
 };
 
 #endif
