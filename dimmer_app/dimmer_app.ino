@@ -3,8 +3,27 @@
 #include "DimmerModule.h"
 #include "config.h"
 
+#include <SinricPro.h>
+#include <SinricProLight.h>
+
 WifiModule wifiModule;
 DimmerModule dimmerModule;
+
+bool onPowerState(const String &deviceId, bool &state) {
+  Serial.printf("device %s turned %s\r\n", deviceId.c_str(), state ? "on" : "off");
+  if (state == true) {
+    dimmerModule.setLightIntensity(10);  // Default on-state is 10% brightness
+  } else {
+    dimmerModule.setLightIntensity(0);
+  }
+  return true;  // indicate that callback handled correctly
+}
+
+bool onBrightness(const String &deviceId, int brightness) {
+  Serial.printf("Device %s brightness level set to %d\r\n", deviceId.c_str(), brightness);
+  dimmerModule.setLightIntensity(brightness);
+  return true;
+}
 
 void setup() {
   Serial.begin(115200);
@@ -13,6 +32,22 @@ void setup() {
 
   wifiModule.init();
   dimmerModule.init();
+
+  // create and add a light to SinricPro
+  SinricProLight &myLight = SinricPro[sinric_switch_id];
+
+  // set callback function
+  myLight.onPowerState(onPowerState);
+  myLight.onBrightness(onBrightness);
+
+  // setup SinricPro
+  SinricPro.onConnected([]() {
+    Serial.printf("Connected to SinricPro\r\n");
+  });
+  SinricPro.onDisconnected([]() {
+    Serial.printf("Disconnected from SinricPro\r\n");
+  });
+  SinricPro.begin(sinric_app_key, sinric_app_secret);
 }
 
 void loop() {
@@ -22,6 +57,5 @@ void loop() {
     // WiFi is not connected, handle accordingly
   }
 
-  // When get a command to dim light, use line below:
-  // dimmerModule.setLightIntensity(50);
+  SinricPro.handle();
 }
