@@ -9,10 +9,14 @@
 WifiModule wifiModule;
 DimmerModule dimmerModule;
 
+// create and add a light to SinricPro
+SinricProLight &myLight = SinricPro[sinric_switch_id];
+
 bool onPowerState(const String &deviceId, bool &state) {
   Serial.printf("device %s turned %s\r\n", deviceId.c_str(), state ? "on" : "off");
   if (state == true) {
     dimmerModule.setLightIntensity(10);  // Default on-state is 10% brightness
+    myLight.sendBrightnessEvent(10); // Notify the SinricPro about this brightness value being used
   } else {
     dimmerModule.setLightIntensity(0);
   }
@@ -32,9 +36,6 @@ void setup() {
 
   wifiModule.init();
   dimmerModule.init();
-
-  // create and add a light to SinricPro
-  SinricProLight &myLight = SinricPro[sinric_switch_id];
 
   // set callback function
   myLight.onPowerState(onPowerState);
