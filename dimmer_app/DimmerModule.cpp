@@ -39,8 +39,17 @@ void DimmerModule::init() {
 
 void DimmerModule::setLightIntensity(int percentage) {
   if (percentage >= 0 && percentage <= 100) {
-    // Convert percentage to duty cycle
-    int duty_cycle = (int)(LEDC_DUTY_MAX * percentage / 100);
+    // Convert percentage to duty cycle, hardcoded for min and max percentage to prevent rounding errors
+    int duty_cycle;
+    if (percentage == 0){
+      duty_cycle = 0;
+    }
+    else if (percentage == 100){
+      duty_cycle = LEDC_DUTY_MAX;
+    }
+    else {
+      duty_cycle = (int)(LEDC_DUTY_MAX * percentage / 100);
+    }
 
     // Set duty on-time
     ESP_ERROR_CHECK(ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, duty_cycle));
