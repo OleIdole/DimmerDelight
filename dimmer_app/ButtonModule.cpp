@@ -4,26 +4,45 @@
 #include <Arduino.h>
 #include <stdio.h>
 
-#define BUTTON_INPUT_IO (6)  // This is GPIO D4 on the ESP32C3
+#define BUTTON_INPUT_IO (6)             // This is GPIO D4 on the ESP32C3
 
-boolean buttonWasLow = false;         // variable flag for when the pushbutton goes low
+boolean buttonWasHigh = false;          // variable flag for when the pushbutton goes high
+int prevButtonState = LOW;
+unsigned long buttonPressedTime = 0;    // the last time the button was pressed (ms)
+unsigned long debounceDelay = 50;       // the debounce time; increase if the output flickers (ms)
+unsigned long longPressDuration = 1000; // duration required to qualify as long press (ms)
 
 void ButtonModule::init() {
   pinMode(BUTTON_INPUT_IO, INPUT_PULLDOWN);
 }
 
 void ButtonModule::monitorState() {
-  // read the state of the pushbutton and set a flag if it is low:
-  if (digitalRead(BUTTON_INPUT_IO) == LOW)  {
-      buttonWasLow = true;
+  // read the state of the pushbutton
+  int buttonState = digitalRead(BUTTON_INPUT_IO);
+
+  // Check if button is just pressed
+  if (prevButtonState == LOW && buttonState == HIGH)  {
+      prevButtonState = HIGH;
+      buttonPressedTime = millis();
   }
 
-  // This if statement will only fire on the rising edge of the button input
-  if (digitalRead(BUTTON_INPUT_IO) == HIGH && buttonWasLow)  {
-      // reset the button low flag
-      buttonWasLow = false;
+  // Check if button is just released
+  if (prevButtonState == HIGH && buttonState == LOW) {
+    prevButtonState = LOW;
+    unsigned long buttonPressDuration = millis() - buttonPressedTime;
+  
+    // Dont do anything if shorter press than debounce delay
+    if (buttonPressDuration < debounceDelay) {
+      return;
+    }
 
-      // Button event here
-      Serial.println("Button pressed..");
+    // Long press
+    if (buttonPressDuration > longPressDuration) {
+      Serial.println("Long press");
+    }
+    // Short press
+    else {
+      Serial.println("Short press");
+    }
   }
 }
