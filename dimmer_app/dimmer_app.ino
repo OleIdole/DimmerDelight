@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include "WifiModule.h"
 #include "DimmerModule.h"
+#include "ButtonModule.h"
 #include "config.h"
 
 #include <SinricPro.h>
@@ -8,6 +9,7 @@
 
 WifiModule wifiModule;
 DimmerModule dimmerModule;
+ButtonModule buttonModule;
 
 // create and add a light to SinricPro
 SinricProLight &myLight = SinricPro[sinric_switch_id];
@@ -36,6 +38,7 @@ void setup() {
 
   wifiModule.init();
   dimmerModule.init();
+  buttonModule.init();
 
   // set callback function
   myLight.onPowerState(onPowerState);
@@ -59,4 +62,5 @@ void loop() {
   }
 
   SinricPro.handle();
+  buttonModule.monitorState();
 }
