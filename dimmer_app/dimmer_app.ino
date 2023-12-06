@@ -14,11 +14,15 @@ ButtonModule buttonModule;
 // create and add a light to SinricPro
 SinricProLight &myLight = SinricPro[sinric_switch_id];
 
+// TODO: make button press use currentBrightness and send brightness/power event to myLight as well when changing intensity/on/off
+// TODO: make button longpress cycle between 10, 50 and 100 percent and update currentBrightness
+
 bool onPowerState(const String &deviceId, bool &state) {
   Serial.printf("device %s turned %s\r\n", deviceId.c_str(), state ? "on" : "off");
   if (state == true) {
-    dimmerModule.setLightIntensity(10);  // Default on-state is 10% brightness
-    myLight.sendBrightnessEvent(10); // Notify the SinricPro about this brightness value being used
+    int currentBrightness = dimmerModule.getCurrentBrightness();
+    dimmerModule.setLightIntensity(currentBrightness);  // Default on-state is 10% brightness
+    myLight.sendBrightnessEvent(currentBrightness); // Notify the SinricPro about this brightness value being used
   } else {
     dimmerModule.setLightIntensity(0);
   }
@@ -37,7 +41,7 @@ void setup() {
   Serial.println("Booting device..");
 
   wifiModule.init();
-  dimmerModule.init();
+  dimmerModule.init(10); // Set initial brightness percentage
   buttonModule.init();
 
   // set callback function

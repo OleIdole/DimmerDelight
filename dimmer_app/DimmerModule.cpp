@@ -13,7 +13,7 @@
 #define LEDC_DUTY_MAX (8191)             // Max duty cycle = ((2 ** 13) - 1) * 100% = 8191
 #define LEDC_FREQUENCY (4000)            // Frequency in Hertz. Set frequency at 4 kHz
 
-void DimmerModule::init() {
+void DimmerModule::init(int initialBrightness) {
   // Prepare and then apply the LEDC PWM timer configuration
   ledc_timer_config_t ledc_timer = {
     .speed_mode = LEDC_MODE,
@@ -35,6 +35,8 @@ void DimmerModule::init() {
     .hpoint = 0
   };
   ESP_ERROR_CHECK(ledc_channel_config(&ledc_channel));
+
+  setLightIntensity(initialBrightness);
 }
 
 void DimmerModule::setLightIntensity(int percentage) {
@@ -43,12 +45,15 @@ void DimmerModule::setLightIntensity(int percentage) {
     int duty_cycle;
     if (percentage == 0){
       duty_cycle = 0;
+      // Not setting brightness for 0 percentage, want to keep last non-zero value for when turning on again
     }
     else if (percentage == 100){
       duty_cycle = LEDC_DUTY_MAX;
+      setCurrentBrightness(percentage);
     }
     else {
       duty_cycle = (int)(LEDC_DUTY_MAX * percentage / 100);
+      setCurrentBrightness(percentage);
     }
 
     // Set duty on-time
@@ -59,3 +64,18 @@ void DimmerModule::setLightIntensity(int percentage) {
     Serial.println("ERROR: light intensity out of range 0 to 100");
   }
 }
+
+int DimmerModule::getCurrentBrightness() {
+  return currentBrightness;
+}
+
+// Private method to set the brightness
+void DimmerModule::setCurrentBrightness(int percentage) {
+  if (percentage >= 0 && percentage <= 100) {
+    currentBrightness = percentage;
+    char buffer[50]; // Buffer to hold the formatted string
+    snprintf(buffer, sizeof(buffer), "Light set to %d %%", currentBrightness);
+    Serial.println(buffer);
+  }
+}
+
