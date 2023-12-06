@@ -3,12 +3,13 @@
 
 class DimmerModule {
 public:
+  bool isLightOn = false;
   void init(int initialBrightness);
   void setLightIntensity(int percentage);
-  int getCurrentBrightness();
+  int getBrightness();
 private:
-  int currentBrightness = 0;
-  void setCurrentBrightness(int percentage);
+  int brightness = 0;
+  void setBrightness(int percentage);
 };
 
 #endif  // DimmerModule_h

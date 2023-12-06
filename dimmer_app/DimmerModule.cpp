@@ -45,15 +45,18 @@ void DimmerModule::setLightIntensity(int percentage) {
     int duty_cycle;
     if (percentage == 0){
       duty_cycle = 0;
+      isLightOn = false;
       // Not setting brightness for 0 percentage, want to keep last non-zero value for when turning on again
     }
     else if (percentage == 100){
       duty_cycle = LEDC_DUTY_MAX;
-      setCurrentBrightness(percentage);
+      setBrightness(percentage);
+      isLightOn = true;
     }
     else {
       duty_cycle = (int)(LEDC_DUTY_MAX * percentage / 100);
-      setCurrentBrightness(percentage);
+      setBrightness(percentage);
+      isLightOn = true;
     }
 
     // Set duty on-time
@@ -61,21 +64,20 @@ void DimmerModule::setLightIntensity(int percentage) {
     // Update duty to apply the new value
     ESP_ERROR_CHECK(ledc_update_duty(LEDC_MODE, LEDC_CHANNEL));
   } else {
-    Serial.println("ERROR: light intensity out of range 0 to 100");
+    Serial.println("ERROR: light intensity out of range 0 to 100\r\n");
   }
 }
 
-int DimmerModule::getCurrentBrightness() {
-  return currentBrightness;
+int DimmerModule::getBrightness() {
+  return brightness;
 }
 
 // Private method to set the brightness
-void DimmerModule::setCurrentBrightness(int percentage) {
+void DimmerModule::setBrightness(int percentage) {
   if (percentage >= 0 && percentage <= 100) {
-    currentBrightness = percentage;
+    brightness = percentage;
     char buffer[50]; // Buffer to hold the formatted string
-    snprintf(buffer, sizeof(buffer), "Light set to %d %%", currentBrightness);
+    snprintf(buffer, sizeof(buffer), "Light set to %d%%\r\n", brightness);
     Serial.println(buffer);
   }
 }
-
