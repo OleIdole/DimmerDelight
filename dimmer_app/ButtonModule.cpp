@@ -16,6 +16,14 @@ void ButtonModule::init() {
   pinMode(BUTTON_INPUT_IO, INPUT_PULLDOWN);
 }
 
+void ButtonModule::onShortPress(ButtonPressCallback callback) {
+  shortPressCallback = callback;
+}
+
+void ButtonModule::onLongPress(ButtonPressCallback callback) {
+  longPressCallback = callback;
+}
+
 void ButtonModule::monitorState() {
   // read the state of the pushbutton
   int buttonState = digitalRead(BUTTON_INPUT_IO);
@@ -38,11 +46,15 @@ void ButtonModule::monitorState() {
 
     // Long press
     if (buttonPressDuration > longPressDuration) {
-      Serial.println("Long press");
+      if (longPressCallback) {
+        longPressCallback();
+      }
     }
     // Short press
     else {
-      Serial.println("Short press");
+      if (shortPressCallback) {
+        shortPressCallback();
+      }
     }
   }
 }

@@ -17,7 +17,7 @@ SinricProLight &myLight = SinricPro[sinric_switch_id];
 // TODO: make button press use currentBrightness and send brightness/power event to myLight as well when changing intensity/on/off
 // TODO: make button longpress cycle between 10, 50 and 100 percent and update currentBrightness
 
-bool onPowerState(const String &deviceId, bool &state) {
+bool onPowerStateCb(const String &deviceId, bool &state) {
   Serial.printf("device %s turned %s\r\n", deviceId.c_str(), state ? "on" : "off");
   if (state == true) {
     int currentBrightness = dimmerModule.getCurrentBrightness();
@@ -29,10 +29,20 @@ bool onPowerState(const String &deviceId, bool &state) {
   return true;  // indicate that callback handled correctly
 }
 
-bool onBrightness(const String &deviceId, int brightness) {
+bool onBrightnessCb(const String &deviceId, int brightness) {
   Serial.printf("Device %s brightness level set to %d\r\n", deviceId.c_str(), brightness);
   dimmerModule.setLightIntensity(brightness);
   return true;
+}
+
+void onShortButtonPressCb() {
+  // Handle short press
+  Serial.println("Short press");
+}
+
+void onLongButtonPressCb() {
+  // Handle long press
+  Serial.println("Long press");
 }
 
 void setup() {
@@ -43,10 +53,12 @@ void setup() {
   wifiModule.init();
   dimmerModule.init(10); // Set initial brightness percentage
   buttonModule.init();
+  buttonModule.onShortPress(onShortButtonPressCb);
+  buttonModule.onLongPress(onLongButtonPressCb);
 
   // set callback function
-  myLight.onPowerState(onPowerState);
-  myLight.onBrightness(onBrightness);
+  myLight.onPowerState(onPowerStateCb);
+  myLight.onBrightness(onBrightnessCb);
 
   // setup SinricPro
   SinricPro.onConnected([]() {
