@@ -64,7 +64,7 @@ void DimmerModule::setLightIntensity(int percentage) {
     // Update duty to apply the new value
     ESP_ERROR_CHECK(ledc_update_duty(LEDC_MODE, LEDC_CHANNEL));
   } else {
-    Serial.println("ERROR: light intensity out of range 0 to 100\r\n");
+    Serial.printf("ERROR: light intensity out of range 0 to 100\r\n");
   }
 }
 
@@ -76,8 +76,6 @@ int DimmerModule::getBrightness() {
 void DimmerModule::setBrightness(int percentage) {
   if (percentage >= 0 && percentage <= 100) {
     brightness = percentage;
-    char buffer[50]; // Buffer to hold the formatted string
-    snprintf(buffer, sizeof(buffer), "Light set to %d%%\r\n", brightness);
-    Serial.println(buffer);
+    Serial.printf("Light set to %d%%\r\n", percentage);
   }
 }

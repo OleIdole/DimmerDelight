@@ -46,7 +46,7 @@ void onShortButtonPressCb() {
   else {
     // Turn on light with previous brightness value
     int brightness = dimmerModule.getBrightness();
-    Serial.printf("Turning on light at %d percentage\r\n", brightness);
+    Serial.printf("Turning on light\r\n");
     dimmerModule.setLightIntensity(brightness);
     myLight.sendPowerStateEvent(true);
     myLight.sendBrightnessEvent(brightness); // Notify the SinricPro about this brightness value being used
@@ -77,7 +77,7 @@ void setup() {
   
   Serial.begin(115200);
   delay(10);
-  Serial.println("Booting device..\r\n");
+  Serial.printf("Booting device..\r\n");
 
   wifiModule.init();
   dimmerModule.init(initialBrightness);
